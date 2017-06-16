@@ -21,36 +21,29 @@ void execCommand(char* command){
      exit(0);
 }
 
-void subProcesses(int i, char* argv[], int successCounter, int errorCounter){
-int status;
-if(fork() > 0) {
-wait(&status);
-if(WIFEXITED(status)){
-      int es = WEXITSTATUS(status);
-        if(es ==0){
-           successCounter++;
-        } else{
-        errorCounter++;
-      }
-
-execCommand(argv[i]);
-}
-} else {
-
-if(i==1) {
-printf("Succeeded: %d\n Errors: %d\n", successCounter, errorCounter);
-exit(0);
-}else{
-
-subProcesses(i-1,argv, successCounter, errorCounter);
-printf("Child");
-exit(0);
-}
-}
-}
-
 int main(int argc, char* argv[]) {
+
 int successCounter = 0;
 int errorCounter = 0;
-subProcesses(argc - 1, argv, successCounter, errorCounter);
+int status;
+
+for(int i = 1; i < argc; i++) {
+	if(fork()>0) {
+		wait(&status);
+	
+       			 int es = WEXITSTATUS(status);
+ 		         if(es ==0){
+          			 successCounter++;
+       			 } else{
+       				 errorCounter++;
+     			 }
+	
+	} else {
+		execCommand(argv[i]);
+
+	}
+}
+
+printf("Succeeded: %d\n Errors: %d\n", successCounter, errorCounter);
+exit(0);
 }
